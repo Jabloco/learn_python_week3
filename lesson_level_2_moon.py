@@ -45,18 +45,35 @@ def talk_to_me(update, context):
             update.message.reply_text('Введите слова')
         else:
             update.message.reply_text(word_count(user_text_list[1:]))
+
+    elif user_text_list[0] == '/cities':
+        length_user_text = len(user_text_list)
+        if length_user_text == 1:
+            update.message.reply_text('Введите город')
+        elif length_user_text > 2:
+            update.message.reply_text('Много лишних слов')
+        else:
+            update.message.reply_text(game_city(user_text_list[1]))
+    
+
     else:
         print(user_text)
         update.message.reply_text(user_text)
 
-def word_count(input_words):
+# Задание третьего уровня
+cities = ['Москва', 'Киров', 'Архангельск', 'Владивосток']
+def game_city(input_city):
+    pass
+
+# Задание второго уровня
+def word_count(input_words:list):
     words_count = 0
     for elem in input_words:
         if not re.match("^[0-9_?!@#№$%^&\"\'<>*()\-\+=~|\\\/,.]*$", elem):
             words_count += 1
     return words_count
 
-
+# Задание второго уровня
 def fool_moon(input_date):
     try:
         near_date = datetime.strptime(input_date, '%Y-%m-%d')
