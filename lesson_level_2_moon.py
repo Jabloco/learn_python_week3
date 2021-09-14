@@ -3,7 +3,6 @@ import re
 import ephem
 import settings
 from datetime import datetime
-import ephem
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
@@ -53,7 +52,7 @@ def talk_to_me(update, context):
 def word_count(input_words):
     words_count = 0
     for elem in input_words:
-        if not re.match("^[0-9_?!@#$%^&\"\'<>*()\-\+=~|\\\/,.]*$", elem):
+        if not re.match("^[0-9_?!@#№$%^&\"\'<>*()\-\+=~|\\\/,.]*$", elem):
             words_count += 1
     return words_count
 
