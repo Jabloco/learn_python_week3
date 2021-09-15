@@ -59,15 +59,51 @@ def talk_to_me(update, context):
         else:
             update.message.reply_text(game_city(user_text_list[1]))
     
+    elif user_text_list[0] == '/calc':
+        length_user_text = len(user_text_list)
+
+        if length_user_text == 1:
+            update.message.reply_text('Добавьте выражение')
+        else:
+            arifm = ''.join(user_text_list[1:])
+            update.message.reply_text(calc(arifm))
+
     else:
         print(user_text)
         update.message.reply_text(user_text)
 
 # Задание третьего уровня
+# КАЛЬКУЛЯТОР
+def calc(input_arifm:str):
+    # убрать пробелы
+    input_arifm.replace(' ', '')
+    # проверить строку на буквы
+    try:
+        result = eval(input_arifm)
+    # проймать деление на 0
+    except ZeroDivisionError:
+        return 'На ноль делить нельзя'
+    # поймать SintaxError
+    except (SyntaxError, NameError):
+        return 'Введите арифметическое выражение, например 4+5'
+    return result
+   
+
+# Задание третьего уровня
+# ИГРА В ГРОДА
 cities = ['Москва', 'Киров', 'Архангельск', 'Владивосток', 'Казань', 'Нолинск']  # список городов известных боту
 cities_stack = []  # список использованых городов 
 def game_city(input_city: str):
     input_city = input_city.capitalize()
+    length_city = len(cities)
+    length_city_stack = len(cities_stack)
+    # если список городов и стек равны тоначинаем игру заново
+    # очищаем стек и записываем в него пришедший город
+    if length_city == length_city_stack:
+        cities_stack.clear()
+        cities_stack.append(input_city)
+        return 'У бота не осталось городов.\nИгра сброшена\nВведеный город принят в качестве стартового'
+
     # проверяем есть ли введены город в списке использованых
     if input_city in cities_stack:
         return 'Город уже был назван'
@@ -78,30 +114,34 @@ def game_city(input_city: str):
 
     # если город не использовался и известен боту
     if input_city in cities:
-        print(input_city)
         # проверяем что стек пустой
-        if len(cities_stack) == 0:
+        if length_city_stack == 0:
             cities_stack.append(input_city)
             return 'Город принят'
 
         # проверка последней буквы
+        # если заканчивается на ы или ь
         if cities_stack[-1][-1] in ('ыь') and input_city[0].lower() == cities_stack[-1][-2]:
             cities_stack.append(input_city)
             return 'Город принят'
+        # если заканчивается на другие буквы
         if input_city[0].lower() == cities_stack[-1][-1]:
             cities_stack.append(input_city)
             return 'Город принят'
+        # если город не прошел ни одной проверки
         return 'Город не принят'
 
 # Задание второго уровня
+# СЧЕТЧИК СЛОВ
 def word_count(input_words:list):
     words_count = 0
     for elem in input_words:
-        if not re.match("^[0-9_?!@#№$%^&\"\'<>*()\-\+=~|\\\/,.]*$", elem):
+        if not re.match("^[0-9_?!@#№$%^&\"\'<>*()\-\+=~\|\\\/,.]*$", elem):
             words_count += 1
     return words_count
 
 # Задание второго уровня
+# ДАТА ПОЛНОЛУНИЯ
 def fool_moon(input_date):
     try:
         near_date = datetime.strptime(input_date, '%Y-%m-%d')
