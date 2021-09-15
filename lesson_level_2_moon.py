@@ -48,22 +48,50 @@ def talk_to_me(update, context):
 
     elif user_text_list[0] == '/cities':
         length_user_text = len(user_text_list)
+
         if length_user_text == 1:
-            update.message.reply_text('Введите город')
+            if len(cities_stack) == 0:
+                update.message.reply_text('Игра не начата')
+            else:
+                update.message.reply_text('\n'.join(cities_stack))
         elif length_user_text > 2:
             update.message.reply_text('Много лишних слов')
         else:
             update.message.reply_text(game_city(user_text_list[1]))
     
-
     else:
         print(user_text)
         update.message.reply_text(user_text)
 
 # Задание третьего уровня
-cities = ['Москва', 'Киров', 'Архангельск', 'Владивосток']
-def game_city(input_city):
-    pass
+cities = ['Москва', 'Киров', 'Архангельск', 'Владивосток', 'Казань', 'Нолинск']  # список городов известных боту
+cities_stack = []  # список использованых городов 
+def game_city(input_city: str):
+    input_city = input_city.capitalize()
+    # проверяем есть ли введены город в списке использованых
+    if input_city in cities_stack:
+        return 'Город уже был назван'
+
+    # проверяем известен ли город боту
+    if input_city not in cities:
+        return 'Я не знаю такого города'
+
+    # если город не использовался и известен боту
+    if input_city in cities:
+        print(input_city)
+        # проверяем что стек пустой
+        if len(cities_stack) == 0:
+            cities_stack.append(input_city)
+            return 'Город принят'
+
+        # проверка последней буквы
+        if cities_stack[-1][-1] in ('ыь') and input_city[0].lower() == cities_stack[-1][-2]:
+            cities_stack.append(input_city)
+            return 'Город принят'
+        if input_city[0].lower() == cities_stack[-1][-1]:
+            cities_stack.append(input_city)
+            return 'Город принят'
+        return 'Город не принят'
 
 # Задание второго уровня
 def word_count(input_words:list):
