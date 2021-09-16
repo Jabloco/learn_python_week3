@@ -78,16 +78,18 @@ def calc(input_arifm:str):
     # убрать пробелы
     input_arifm.replace(' ', '')
     # проверить строку на буквы
-    try:
-        result = eval(input_arifm)
-    # проймать деление на 0
-    except ZeroDivisionError:
-        return 'На ноль делить нельзя'
-    # поймать SintaxError
-    except (SyntaxError, NameError):
+    if re.match("^[0-9*()\-\+.]*$", input_arifm):
+        try:
+            result = eval(input_arifm)
+        # проймать деление на 0
+        except ZeroDivisionError:
+            return 'На ноль делить нельзя'
+        # поймать SintaxError
+        except (SyntaxError, NameError):
+            return 'Введите арифметическое выражение, например 4+5'
+        return result
+    else:
         return 'Введите арифметическое выражение, например 4+5'
-    return result
-   
 
 # Задание третьего уровня
 # ИГРА В ГРОДА
