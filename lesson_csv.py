@@ -7,8 +7,7 @@ def write_csv(input_person:list):
         writer = csv.DictWriter(file, fields, delimiter=';')
         writer.writeheader()
 
-        for user in input_person:
-            writer.writerow(user)
+        writer.writerows(input_person)
 
     
 if __name__ == "__main__":
