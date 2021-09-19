@@ -2,9 +2,12 @@ import logging
 import re
 import ephem
 import settings
-from datetime import datetime
+# from datetime import datetime
+# import datetime
+from datetime import date, datetime
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+
 
 logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO,
@@ -19,77 +22,62 @@ def greet_user(update, context):
 
 def talk_to_me(update, context):
     user_text = update.message.text
-    user_text_list = user_text.split()
-
-    if user_text_list[0] == '/planet':
-        length_user_text = len(user_text_list)
-        if length_user_text == 2:
-            update.message.reply_text(planet(user_text_list[1].capitalize()))
-        elif length_user_text > 2:
-            update.message.reply_text('Много лишних слов')
-        elif length_user_text == 1:
-            update.message.reply_text('Не указана планета')
-
-    elif user_text_list[0] == '/next_full_moon':
-        length_user_text = len(user_text_list)
-        if length_user_text == 2:            
-            update.message.reply_text(fool_moon(user_text_list[1]))
-        elif length_user_text > 2:
-            update.message.reply_text('Много лишних слов')
-        elif length_user_text == 1:
-            update.message.reply_text('Не указана дата')
-
-    elif user_text_list[0] == '/wordcount':
-        length_user_text = len(user_text_list)
-        if length_user_text == 1:
-            update.message.reply_text('Введите слова')
-        else:
-            update.message.reply_text(word_count(user_text_list[1:]))
-
-    elif user_text_list[0] == '/cities':
-        length_user_text = len(user_text_list)
-
-        if length_user_text == 1:
-            if len(cities_stack) == 0:
-                update.message.reply_text('Игра не начата')
-            else:
-                update.message.reply_text('\n'.join(cities_stack))
-        elif length_user_text > 2:
-            update.message.reply_text('Много лишних слов')
-        else:
-            update.message.reply_text(game_city(user_text_list[1]))
+    update.message.reply_text(user_text)
+        
     
-    elif user_text_list[0] == '/calc':
-        length_user_text = len(user_text_list)
+    # 
 
-        if length_user_text == 1:
-            update.message.reply_text('Добавьте выражение')
-        else:
-            arifm = ''.join(user_text_list[1:])
-            update.message.reply_text(calc(arifm))
+    
 
-    else:
-        print(user_text)
-        update.message.reply_text(user_text)
+    # elif user_text_list[0] == '/cities':
+    #     length_user_text = len(user_text_list)
+
+    #     if length_user_text == 1:
+    #         if len(cities_stack) == 0:
+    #             update.message.reply_text('Игра не начата')
+    #         else:
+    #             update.message.reply_text('\n'.join(cities_stack))
+    #     elif length_user_text > 2:
+    #         update.message.reply_text('Много лишних слов')
+    #     else:
+    #         update.message.reply_text(game_city(user_text_list[1]))
+    
+    # elif user_text_list[0] == '/calc':
+    #     length_user_text = len(user_text_list)
+
+    #     if length_user_text == 1:
+    #         update.message.reply_text('Добавьте выражение')
+    #     else:
+    #         arifm = ''.join(user_text_list[1:])
+    #         update.message.reply_text(calc(arifm))
+
+       
 
 # Задание третьего уровня
 # КАЛЬКУЛЯТОР
-def calc(input_arifm:str):
-    # убрать пробелы
-    input_arifm.replace(' ', '')
-    # проверить строку на буквы
-    if re.match("^[0-9*()\-\+.]*$", input_arifm):
-        try:
-            result = eval(input_arifm)
-        # проймать деление на 0
-        except ZeroDivisionError:
-            return 'На ноль делить нельзя'
-        # поймать SintaxError
-        except (SyntaxError, NameError):
-            return 'Введите арифметическое выражение, например 4+5'
-        return result
+def calc(update, context):
+    length_context = len(context.args)
+    if length_context == 0:
+        update.message.reply_text('Добавьте выражение')
     else:
-        return 'Введите арифметическое выражение, например 4+5'
+        arifm = ''.join(context.args)
+    # убрать пробелы
+    # input_arifm.replace(' ', '')
+    # проверить строку на буквы
+        if re.match("^[0-9*()\-\+.\s]*$", arifm):
+            try:
+                result = eval(arifm)
+            # проймать деление на 0
+            except ZeroDivisionError:
+                update.message.reply_text('На ноль делить нельзя')
+                return
+            # поймать SintaxError
+            except (SyntaxError, NameError):
+                update.message.reply_text('Введите арифметическое выражение, например 4+5')
+                return
+            update.message.reply_text(result)
+        else:
+            update.message.reply_text('Введите арифметическое выражение, например 4+5')
 
 # Задание третьего уровня
 # ИГРА В ГРОДА
@@ -135,30 +123,47 @@ def game_city(input_city: str):
 
 # Задание второго уровня
 # СЧЕТЧИК СЛОВ
-def word_count(input_words:list):
-    words_count = 0
-    for elem in input_words:
-        if not re.match("^[0-9_?!@#№$%^&\"\'<>*()\-\+=~\|\\\/,.]*$", elem):
-            words_count += 1
-    return words_count
+def word_count(update, context):
+    length_context = len(context.args)
+    if length_context == 0:
+        update.message.reply_text('Введите слова')
+    else:
+        words_count = 0
+        for elem in context.args:
+            if not re.match("^[0-9_?!@#№$%^&\"\'<>*()\-\+=~\|\\\/,.]*$", elem):
+                words_count += 1
+        update.message.reply_text(words_count)
 
 # Задание второго уровня
 # ДАТА ПОЛНОЛУНИЯ
-def fool_moon(input_date):
-    try:
-        near_date = datetime.strptime(input_date, '%Y-%m-%d')
-    except TypeError:
-        return 'Не верный формат даты'
-    except ValueError:
-        return 'Не верный формат даты'
-    return ephem.next_full_moon(near_date)
+def full_moon(update, context):
+    length_context = len(context.args)
+    if length_context == 0:
+        update.message.reply_text('Не указана дата')
+    elif length_context > 1:
+        update.message.reply_text('Много лишних слов')
+    else:         
+        try:
+            near_date = datetime.strptime(context.args[0], '%Y-%m-%d')
+        except TypeError:
+            update.message.reply_text('Не верный формат даты')
+        except ValueError:
+            update.message.reply_text('Не верный формат даты')
+        update.message.reply_text(ephem.next_full_moon(near_date))
 
-def planet(input_planet):
-    try:
-        sky_body = getattr(ephem, input_planet)
-    except AttributeError:
-        return 'Я не знаю такой планеты'
-    return ephem.constellation(sky_body(datetime.date.today()))[1]
+def planet(update, context):
+    length_context = len(context.args)
+    if  length_context > 1:
+            update.message.reply_text('Много лишних слов')
+    elif length_context == 0:
+            update.message.reply_text('Не указана планета')
+    else:
+        sky_body_name = context.args[0]
+        try:
+            sky_body = getattr(ephem, sky_body_name)
+        except AttributeError:
+            update.message.reply_text('Я не знаю такой планеты')
+        update.message.reply_text(ephem.constellation(sky_body(date.today()))[1])
     
 
 def main():
@@ -166,6 +171,10 @@ def main():
 
     dp = mybot.dispatcher
     dp.add_handler(CommandHandler("start", greet_user))
+    dp.add_handler(CommandHandler("planet", planet))
+    dp.add_handler(CommandHandler("fullmoon", full_moon))
+    dp.add_handler(CommandHandler("wordcount", word_count))
+    dp.add_handler(CommandHandler("calc", calc))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
     
     mybot.start_polling()
